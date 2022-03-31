@@ -2,17 +2,14 @@ import { hashSync } from "bcrypt"
 import { BeforeInsert, Column, Entity, PrimaryGeneratedColumn } from "typeorm"
 
 @Entity()
-export class User {
+export class UserEntity {
   @PrimaryGeneratedColumn()
   id: number
 
-  @Column({ nullable: false })
-  name: string
-
-  @Column({ nullable: false })
+  @Column()
   email: string
 
-  @Column({ nullable: false })
+  @Column()
   password: string
 
   @BeforeInsert()

@@ -1,40 +1,40 @@
-import { Body, Controller, Delete, Get, Param, Post } from "@nestjs/common"
-import { AuthService } from "src/auth/auth.service"
-import { User } from "./entity/users.entity"
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  UseGuards,
+} from "@nestjs/common"
+import { JwtAuthGuard } from "src/auth/guard/jwt-guard.auth"
+import { UserCreateDto } from "./dto/user.create.dto"
 import { UsersService } from "./users.service"
 
 @Controller("users")
-export class UsersController {
-  constructor(
-    private usersService: UsersService,
-    private authService: AuthService,
-  ) {}
+export class UserController {
+  constructor(private readonly userService: UsersService) {}
 
+  @UseGuards(JwtAuthGuard)
   @Get()
-  async findAll(): Promise<User[]> {
-    return this.usersService.findALl()
+  async findAll() {
+    return this.userService.findAll()
   }
 
-  @Get()
-  async findOne(@Param("email") email: string): Promise<User> {
-    return this.usersService.findByEmail(email)
+  @UseGuards(JwtAuthGuard)
+  @Get(":email")
+  async findOne(@Param("email") email: string) {
+    return this.userService.findByEmail(email)
   }
 
-  @Post("signin")
-  async create(@Body() data: User): Promise<User> {
-    return this.usersService.create(data)
+  @Post()
+  async create(@Body() createUser: UserCreateDto) {
+    return this.userService.create(createUser)
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete(":id")
   async delete(@Param("id") id: number) {
-    return this.usersService.remove(+id)
-  }
-
-  @Post("login")
-  async login(@Body() req: User) {
-    const { email, password } = req
-    const validate = await this.authService.validateUser(email, password)
-
-    return validate
+    return this.userService.delete(+id)
   }
 }
