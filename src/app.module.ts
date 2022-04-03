@@ -4,9 +4,10 @@ import { TypeOrmModule, TypeOrmModuleOptions } from "@nestjs/typeorm"
 import { AppController } from "./app.controller"
 import { AppService } from "./app.service"
 import { AuthModule } from "./auth/auth.module"
+import { TokenEntity } from "./token/entity/token.entity"
+import { TokenModule } from "./token/token.module"
 import { UserEntity } from "./users/user.entity"
 import { UsersModule } from "./users/users.module"
-
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -17,11 +18,12 @@ import { UsersModule } from "./users/users.module"
       username: process.env.TYPEORM_USER,
       password: process.env.TYPEORM_PASSWORD,
       database: process.env.TYPEORM_DATABASE,
-      entities: [UserEntity],
+      entities: [UserEntity, TokenEntity],
       synchronize: true,
     } as TypeOrmModuleOptions),
     UsersModule,
     AuthModule,
+    TokenModule,
   ],
   controllers: [AppController],
   providers: [AppService],

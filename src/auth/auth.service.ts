@@ -1,6 +1,7 @@
-import { Injectable } from "@nestjs/common"
+import { forwardRef, Inject, Injectable } from "@nestjs/common"
 import { JwtService } from "@nestjs/jwt"
 import { compareSync } from "bcrypt"
+import { TokenService } from "src/token/token.service"
 import { UsersService } from "src/users/users.service"
 
 @Injectable()
@@ -8,11 +9,11 @@ export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
+    @Inject(forwardRef(() => TokenService))
+    private readonly tokenService: TokenService,
   ) {}
 
   async validateUser(email: string, password: string) {
-    console.log("auth service", email, password)
-
     const user = await this.usersService.findByEmail(email)
     const passwordIsCorrect = compareSync(password, user.password)
 
@@ -28,12 +29,11 @@ export class AuthService {
   }
 
   async login(user: any) {
-    console.log("login - auth service", user)
-
-    const payload = { email: user.email, sub: user.id }
+    const token = this.jwtService.sign({ email: user.email, sub: user.id })
+    this.tokenService.save(token, user.email)
 
     return {
-      access_token: this.jwtService.sign(payload),
+      access_token: token,
     }
   }
 }
