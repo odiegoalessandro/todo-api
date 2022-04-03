@@ -14,6 +14,7 @@ export class AuthService {
   ) {}
 
   async validateUser(email: string, password: string) {
+    console.log(email, password)
     const user = await this.usersService.findByEmail(email)
     const passwordIsCorrect = compareSync(password, user.password)
 
@@ -26,6 +27,12 @@ export class AuthService {
     }
 
     return null
+  }
+
+  async signIn(user: any) {
+    const newUser = await this.usersService.create(user)
+
+    return await this.login(newUser)
   }
 
   async login(user: any) {
