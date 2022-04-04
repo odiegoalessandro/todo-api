@@ -43,4 +43,8 @@ export class AuthService {
       access_token: token,
     }
   }
+
+  async logout(token: any) {
+    return await this.tokenService.deleteToken(token)
+  }
 }

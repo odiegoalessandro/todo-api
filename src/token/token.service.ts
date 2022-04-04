@@ -50,4 +50,19 @@ export class TokenService {
       )
     }
   }
+
+  async deleteToken(hash: string) {
+    const token = await this.tokenRepository.findOne({ hash })
+
+    console.log(token)
+
+    if (token) {
+      return this.tokenRepository.delete(token)
+    } else {
+      return new HttpException(
+        { errorMessage: "user is already logged out" },
+        HttpStatus.BAD_REQUEST,
+      )
+    }
+  }
 }
