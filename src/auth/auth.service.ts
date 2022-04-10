@@ -1,4 +1,10 @@
-import { forwardRef, Inject, Injectable } from "@nestjs/common"
+import {
+  forwardRef,
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+} from "@nestjs/common"
 import { JwtService } from "@nestjs/jwt"
 import { compareSync } from "bcrypt"
 import { TokenService } from "src/token/token.service"
@@ -36,7 +42,7 @@ export class AuthService {
   }
 
   async login(user: any) {
-    const token = this.jwtService.sign({ email: user.email, sub: user.id })
+    const token = this.jwtService.sign({ email: user.email, id: user.id })
     this.tokenService.save(token, user.email)
 
     return {
@@ -46,5 +52,20 @@ export class AuthService {
 
   async logout(token: any) {
     return await this.tokenService.deleteToken(token)
+  }
+
+  async loginToken(token: string) {
+    const user = this.tokenService.findByToken(token)
+
+    if (user) {
+      return this.login(user)
+    } else {
+      return new HttpException(
+        {
+          errorMessage: "invalid token",
+        },
+        HttpStatus.BAD_REQUEST,
+      )
+    }
   }
 }

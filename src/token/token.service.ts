@@ -65,4 +65,20 @@ export class TokenService {
       )
     }
   }
+
+  async findByToken(hash: string) {
+    const token = hash.replace("Bearer ", "").trim()
+    const search = await this.tokenRepository.findOne({ hash: token })
+
+    if (search) {
+      const user = await this.usersService.findByEmail(search.userEmail)
+
+      return user
+    } else {
+      throw new HttpException(
+        { errorMessage: "token not exists" },
+        HttpStatus.BAD_REQUEST,
+      )
+    }
+  }
 }
