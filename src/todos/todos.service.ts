@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common"
+import { HttpException, HttpStatus, Injectable } from "@nestjs/common"
 import { InjectRepository } from "@nestjs/typeorm"
 import { TokenService } from "src/token/token.service"
 import { Repository } from "typeorm"
@@ -12,26 +12,59 @@ export class TodosService {
     private readonly tokenService: TokenService,
   ) {}
 
-  async create(user: any, todo: any) {
-    this.tokenService.findByToken(user)
+  async create(token: any, todo: any) {
+    const user: any = await this.tokenService.findByToken(token)
 
     const newTodo = this.todosRepository.create({
-      task: todo,
       isCompleted: false,
+      task: todo.task,
+      user,
     })
 
     return this.todosRepository.save(newTodo)
   }
 
   findAll() {
-    return `This action returns all todos`
+    return this.todosRepository.find()
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} todo`
+  async changeTodoState(id: number, state: boolean) {
+    const todo = await this.todosRepository.findOne(id)
+
+    if (todo) {
+      const updatedTodo = this.todosRepository.update(todo.id, {
+        isCompleted: state,
+      })
+
+      return updatedTodo
+    } else {
+      throw new HttpException(
+        {
+          errorMessage: "todo not exists",
+        },
+        HttpStatus.BAD_REQUEST,
+      )
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} todo`
+  async findById(id: number) {
+    const todo = await this.todosRepository.findOne(id)
+
+    if (todo) {
+      return todo
+    } else {
+      throw new HttpException(
+        {
+          errorMessage: "todo not exists",
+        },
+        HttpStatus.BAD_REQUEST,
+      )
+    }
+  }
+
+  async remove(id: number) {
+    const todo = await this.todosRepository.findOne(id)
+
+    return this.todosRepository.delete(todo)
   }
 }
