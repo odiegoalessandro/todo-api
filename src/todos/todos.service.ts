@@ -67,4 +67,10 @@ export class TodosService {
 
     return this.todosRepository.delete(todo)
   }
+
+  async findByUserId(userId: number) {
+    const todos = await this.todosRepository.find({ user: { id: userId } })
+
+    return todos
+  }
 }

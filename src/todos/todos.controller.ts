@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   Req,
   UseGuards,
 } from "@nestjs/common"
@@ -25,6 +26,12 @@ export class TodosController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Get("user")
+  async findByUser(@Req() req) {
+    return this.todosService.findByUserId(req.user.id)
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Get("all")
   async findAll() {
     return await this.todosService.findAll()
@@ -32,7 +39,7 @@ export class TodosController {
 
   @UseGuards(JwtAuthGuard)
   @Get("find")
-  async findById(@Param("id") id: number) {
+  async findById(@Query("id") id: number) {
     return await this.todosService.findById(id)
   }
 
